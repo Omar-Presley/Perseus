@@ -16,7 +16,7 @@
 
 .NOTES
     Project  : Project Perseus (P.E.R.S.E.U.S.)
-    Author   : You
+    Author   : Omar Presley
     Version  : 1.0
     Run as   : Administrator (recommended - some checks are limited without it)
 

@@ -1,0 +1,20 @@
+# Build output (root project, backend/ projects, and the icon-convert scratch tool)
+[Bb]in/
+[Oo]bj/
+
+# Compiled installer output - shipped via GitHub Releases, not tracked in git
+installer/Output/
+
+# Visual Studio / Rider / VS Code local state
+.vs/
+.idea/
+*.user
+*.suo
+
+# Runtime data generated next to the built exe when the app actually runs
+# (config/settings, ui-settings.json, the encrypted Anthropic key, reports, logs).
+# These normally live under bin/ anyway and are already excluded above, but are
+# listed explicitly in case anyone runs a build with a custom output path.
+/config/
+/reports/
+/logs/

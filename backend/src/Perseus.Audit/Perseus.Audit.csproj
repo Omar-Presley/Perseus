@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Perseus.Audit</RootNamespace>
+    <AssemblyName>Perseus.Audit</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Windows-only at runtime (WMI); the package itself references fine on any OS -->
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Perseus.Reporting\Perseus.Reporting.csproj" />
+  </ItemGroup>
+
+</Project>

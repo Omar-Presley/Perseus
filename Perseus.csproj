@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\PerseusIcon.ico</ApplicationIcon>
+    <AssemblyName>Perseus</AssemblyName>
+    <Product>Perseus</Product>
+    <Company>Perseus</Company>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <!--
+    backend\ holds the separate Perseus.Audit/Network/Cve/Reporting/Cli projects
+    (referenced below via ProjectReference, each with its own .csproj). Without
+    these excludes, this project's default file globs would also sweep up their
+    .cs files and generated obj\ artifacts directly, causing duplicate-assembly-
+    attribute build errors on top of the proper project reference.
+  -->
+  <ItemGroup>
+    <Compile Remove="backend\**" />
+    <AvaloniaResource Remove="backend\**" />
+    <EmbeddedResource Remove="backend\**" />
+    <None Remove="backend\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Assets\PerseusIcon.jpg" />
+    <None Include="Assets\PerseusIcon.png" />
+    <None Include="Assets\PerseusIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Anthropic" Version="12.39.0" />
+    <PackageReference Include="Avalonia" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="backend\src\Perseus.Reporting\Perseus.Reporting.csproj" />
+    <ProjectReference Include="backend\src\Perseus.Audit\Perseus.Audit.csproj" />
+    <ProjectReference Include="backend\src\Perseus.Network\Perseus.Network.csproj" />
+    <ProjectReference Include="backend\src\Perseus.Cve\Perseus.Cve.csproj" />
+  </ItemGroup>
+</Project>

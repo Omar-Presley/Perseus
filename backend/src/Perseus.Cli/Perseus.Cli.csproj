@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Perseus.Cli</RootNamespace>
+    <AssemblyName>PERSEUS</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Perseus.Reporting\Perseus.Reporting.csproj" />
+    <ProjectReference Include="..\Perseus.Audit\Perseus.Audit.csproj" />
+    <ProjectReference Include="..\Perseus.Network\Perseus.Network.csproj" />
+    <ProjectReference Include="..\Perseus.Cve\Perseus.Cve.csproj" />
+  </ItemGroup>
+
+</Project>

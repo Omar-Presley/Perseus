@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Perseus.Network</RootNamespace>
+    <AssemblyName>Perseus.Network</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Perseus.Reporting\Perseus.Reporting.csproj" />
+    <ProjectReference Include="..\Perseus.Audit\Perseus.Audit.csproj" />
+  </ItemGroup>
+
+</Project>

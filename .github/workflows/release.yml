@@ -50,14 +50,22 @@ jobs:
 
       - name: Build Perseus.icns
         run: |
+          set -x
           mkdir -p Perseus.iconset
-          sips -z 16 16   Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_16x16.png
-          sips -z 32 32   Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_16x16@2x.png
-          sips -z 32 32   Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_32x32.png
-          sips -z 64 64   Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_32x32@2x.png
-          sips -z 128 128 Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_128x128.png
-          sips -z 256 256 Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_128x128@2x.png
-          sips -z 256 256 Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_256x256.png
+
+          # Convert JPG -> PNG once first, then resize PNG -> PNG for every
+          # size below - sips resizing a same-format image is the most
+          # reliable path; doing format conversion on every call is a common
+          # source of sips failures on some inputs/macOS versions.
+          sips -s format png Assets/PerseusIconsource.jpg --out Perseus-source.png
+
+          sips -z 16 16   Perseus-source.png --out Perseus.iconset/icon_16x16.png
+          sips -z 32 32   Perseus-source.png --out Perseus.iconset/icon_16x16@2x.png
+          sips -z 32 32   Perseus-source.png --out Perseus.iconset/icon_32x32.png
+          sips -z 64 64   Perseus-source.png --out Perseus.iconset/icon_32x32@2x.png
+          sips -z 128 128 Perseus-source.png --out Perseus.iconset/icon_128x128.png
+          sips -z 256 256 Perseus-source.png --out Perseus.iconset/icon_128x128@2x.png
+          sips -z 256 256 Perseus-source.png --out Perseus.iconset/icon_256x256.png
           iconutil -c icns Perseus.iconset -o Perseus.icns
 
       - name: Publish, sign, and bundle each architecture

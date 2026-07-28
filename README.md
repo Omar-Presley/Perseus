@@ -15,7 +15,13 @@ Perseus is a cross-platform desktop application that reviews the security postur
 
 ## Installing
 
-Grab the latest installer from the [Releases](../../releases) page and run `PerseusSetup.exe`. It installs per-user (no admin required), adds a Start Menu entry, and registers a normal uninstaller.
+Grab the latest build for your platform from the [Releases](../../releases) page:
+
+- **Windows** - `PerseusSetup.exe`. Installs per-user (no admin required), adds a Start Menu entry, and registers a normal uninstaller.
+- **macOS** - `Perseus-macOS-arm64.zip` (Apple Silicon) or `Perseus-macOS-x64.zip` (Intel). Unzip, then right-click `Perseus.app` -> Open the first time (it's ad-hoc signed but not notarized, so Gatekeeper will still flag it as from an unidentified developer).
+- **Linux** - `Perseus-linux-x64.tar.gz`. Extract and run `./Perseus`, or see the included `README.txt` for adding a desktop menu entry.
+
+Releases are built automatically by [`.github/workflows/release.yml`](.github/workflows/release.yml) whenever a version tag (`vX.Y.Z`) is pushed - see "Cutting a release" below.
 
 ## Repository layout
 
@@ -46,6 +52,17 @@ Then compile the installer (requires [Inno Setup](https://jrsoftware.org/isinfo.
 ```
 iscc installer\Perseus.iss
 ```
+
+## Cutting a release
+
+Push a tag matching `vX.Y.Z` and CI builds and publishes all three platforms automatically:
+
+```
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+This builds the Windows installer, ad-hoc-signs and zips both macOS architectures, packages the Linux tarball, and attaches all of them (plus a `SHA256SUMS.txt`) to a new GitHub Release. You can also trigger the same build manually from the Actions tab (`workflow_dispatch`) to sanity-check it without publishing a release.
 
 ## License
 

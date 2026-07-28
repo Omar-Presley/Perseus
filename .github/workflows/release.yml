@@ -1,0 +1,192 @@
+name: Release
+
+# Builds installers/bundles for Windows, macOS (arm64 + x64), and Linux, then
+# attaches them to a GitHub Release when a version tag is pushed. Can also be
+# run manually (workflow_dispatch) to sanity-check the build without
+# publishing a release - the release job only fires on an actual tag push.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Publish self-contained win-x64
+        run: dotnet publish -c Release -p:PublishProfile=win-x64
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Build installer
+        shell: pwsh
+        run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\Perseus.iss'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: installer/Output/PerseusSetup.exe
+
+  macos:
+    # A single real Mac can build and ad-hoc-sign both architectures - codesign
+    # doesn't care about the runner's own CPU, only the target binary's -
+    # so this avoids depending on both an arm64 and an x64 runner label
+    # existing at once.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Build Perseus.icns
+        run: |
+          mkdir -p Perseus.iconset
+          sips -z 16 16   Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_16x16.png
+          sips -z 32 32   Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_16x16@2x.png
+          sips -z 32 32   Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_32x32.png
+          sips -z 64 64   Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_32x32@2x.png
+          sips -z 128 128 Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_128x128.png
+          sips -z 256 256 Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_128x128@2x.png
+          sips -z 256 256 Assets/PerseusIconsource.jpg --out Perseus.iconset/icon_256x256.png
+          iconutil -c icns Perseus.iconset -o Perseus.icns
+
+      - name: Publish, sign, and bundle each architecture
+        run: |
+          set -e
+          for rid in osx-arm64 osx-x64; do
+            case "$rid" in
+              osx-arm64) arch=arm64 ;;
+              osx-x64) arch=x64 ;;
+            esac
+
+            dotnet publish -c Release -p:PublishProfile=$rid
+
+            APP="Perseus-$arch.app"
+            rm -rf "$APP"
+            mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+            cp "bin/Release/net10.0/$rid/publish/Perseus" "$APP/Contents/MacOS/Perseus"
+            chmod +x "$APP/Contents/MacOS/Perseus"
+            cp Perseus.icns "$APP/Contents/Resources/Perseus.icns"
+
+            cat > "$APP/Contents/Info.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleName</key><string>Perseus</string>
+              <key>CFBundleDisplayName</key><string>Perseus</string>
+              <key>CFBundleIdentifier</key><string>com.omarpresley.perseus</string>
+              <key>CFBundleVersion</key><string>1.0.0</string>
+              <key>CFBundleShortVersionString</key><string>1.0.0</string>
+              <key>CFBundleExecutable</key><string>Perseus</string>
+              <key>CFBundleIconFile</key><string>Perseus.icns</string>
+              <key>CFBundlePackageType</key><string>APPL</string>
+              <key>LSMinimumSystemVersion</key><string>11.0</string>
+              <key>NSHighResolutionCapable</key><true/>
+          </dict>
+          </plist>
+          PLIST
+
+            mv "$APP" "Perseus.app"
+            # Ad-hoc signature (no paid Apple Developer account needed) - this is
+            # what's actually required for Apple Silicon to execute the binary
+            # at all; without it, launching fails at the OS level, not just a
+            # Gatekeeper warning.
+            codesign --force --deep --sign - Perseus.app
+            ditto -c -k --sequesterRsrc --keepParent Perseus.app "Perseus-macOS-$arch.zip"
+            rm -rf Perseus.app
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: Perseus-macOS-*.zip
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Publish self-contained linux-x64
+        run: dotnet publish -c Release -p:PublishProfile=linux-x64
+
+      - name: Package tar.gz
+        run: |
+          set -e
+          rm -rf dist
+          mkdir -p dist/Perseus
+          cp bin/Release/net10.0/linux-x64/publish/Perseus dist/Perseus/Perseus
+          chmod +x dist/Perseus/Perseus
+          cp Assets/PerseusIcon.png dist/Perseus/Perseus.png
+
+          cat > dist/Perseus/Perseus.desktop <<'DESKTOP'
+          [Desktop Entry]
+          Type=Application
+          Name=Perseus
+          Comment=Proactive Endpoint Review and Security Evaluation Utility Suite
+          Exec=/opt/perseus/Perseus
+          Icon=/opt/perseus/Perseus.png
+          Terminal=false
+          Categories=Utility;Security;
+          DESKTOP
+
+          cat > dist/Perseus/README.txt <<'README'
+          Perseus - Proactive Endpoint Review and Security Evaluation Utility Suite
+
+          To run directly:
+              ./Perseus
+
+          To add it to your application menu:
+              1. Move this folder wherever you want it to live permanently,
+                 e.g. sudo mv Perseus /opt/perseus
+              2. Edit Perseus.desktop and fix the Exec= and Icon= paths to match
+                 wherever you put it.
+              3. Copy Perseus.desktop to ~/.local/share/applications/
+          README
+
+          tar -C dist -czf Perseus-linux-x64.tar.gz Perseus
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: Perseus-linux-x64.tar.gz
+
+  release:
+    needs: [windows, macos, linux]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect and checksum
+        run: |
+          set -e
+          mkdir -p release
+          find artifacts -type f \( -name "*.exe" -o -name "*.zip" -o -name "*.tar.gz" \) -exec cp {} release/ \;
+          cd release
+          sha256sum * > SHA256SUMS.txt
+          ls -la
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true

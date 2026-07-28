@@ -13,6 +13,8 @@ Perseus is a cross-platform desktop application that reviews the security postur
 - **Remediation** - applies simple package upgrades directly through the OS's own package manager (winget/apt/brew), behind an explicit confirmation step.
 - **Reporting** - exports findings as HTML, JSON, or CSV.
 
+Note on the Network tab: **Refresh Network** re-scans currently listening ports on demand (via `netstat`/`/proc/net/tcp`/`lsof` depending on OS) without running a full audit or touching your risk score - a lighter-weight check than **Run Full Audit**, which does the same port scan as one step among many and records the results as findings.
+
 ## Installing
 
 Grab the latest build for your platform from the [Releases](../../releases) page:

@@ -32,7 +32,7 @@ Grab the latest build for your platform from the [Releases](../../releases) page
 Releases are built automatically by [`.github/workflows/release.yml`](.github/workflows/release.yml) whenever a version tag (`vX.Y.Z`) is pushed - see "Cutting a release" below.
 ___
 
-# Note: There will probably not be another release unless I manually build a new applications in a language I 100% know and use. The application is mainly for learning purposes, AI capability testing, and to be reverse engineering and/or pentested.
+# Note: There will probably not be another release unless I manually build a new applications in a language I 100% know and use. The application is mainly for learning purposes, AI capability testing, and to be reverse engineered and/or pentested.
 
 ## Repository layout
 

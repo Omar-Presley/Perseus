@@ -3,7 +3,7 @@
 # Goal of this Project
 
 My main goal in this project was to test the capabilities of AI, and the read-only security functionalities of PowerShell. Through this project I weas able to have a better understanding 
-of how application can be deployed and installed across four different systems (e.g., Windows, Linux, Silicon Mac, and Intel Mac). This application can be installed and used for reverse engineering, and/or security testing. It will also most-likely show up in one of my future projects where I reverse engineer or test application in different languages. Nonetheless, it does still work and can help in finding vulnerabilities and risk indicators for personnel who are newer to IT or system analysis. 
+of how applications can be deployed and installed across four different systems (e.g., Windows, Linux, Silicon Mac, and Intel Mac). This application can be installed and used for reverse engineering, and/or security testing. It will also most-likely show up in one of my future projects where I reverse engineer or test applications in different languages. Nonetheless, it does still work and can help in finding vulnerabilities and risk indicators for personnel who are newer to IT or system analysis. 
 
 
 **P**roactive **E**ndpoint **R**eview and **S**ecurity **E**valuation **U**tility **S**uite
@@ -31,7 +31,7 @@ Grab the latest build for your platform from the [Releases](../../releases) page
 
 Releases are built automatically by [`.github/workflows/release.yml`](.github/workflows/release.yml) whenever a version tag (`vX.Y.Z`) is pushed - see "Cutting a release" below.
 
-# Note: There will probably not be another release unless I manually build a new applications in a language I 100% know and use. The application is mainly for learning purposes and to be reverse engineering and/or pentested.
+# Note: There will probably not be another release unless I manually build a new applications in a language I 100% know and use. The application is mainly for learning purposes, AI capability testing, and to be reverse engineering and/or pentested.
 
 ## Repository layout
 
